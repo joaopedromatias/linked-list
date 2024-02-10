@@ -9,7 +9,7 @@ class Node {
 }
 
 class LinkedList {
-  public head: Node
+  private head: Node
 
   constructor(head: Node) {
     this.head = head
@@ -18,7 +18,7 @@ class LinkedList {
   traverse() {
     let nodeToShow: Node | null = this.head
     while (nodeToShow) {
-      console.log(`data: ${nodeToShow.data}`)
+      console.log(nodeToShow.data)
       nodeToShow = nodeToShow.next
     }
   }
@@ -121,7 +121,7 @@ class LinkedList {
     }
   }
 
-  getNodeByIndex(index: number) {
+  private getNodeByIndex(index: number) {
     let currentNode: Node | null = this.head
     let i = 0
     while (i < index) {
@@ -135,7 +135,7 @@ class LinkedList {
     return currentNode
   }
 
-  getLastNode() {
+  private getLastNode() {
     let currentNode = this.head
     let lastNodeIndex = 0
     while (currentNode.next) {

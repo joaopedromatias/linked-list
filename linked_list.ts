@@ -9,7 +9,7 @@ class Node {
 }
 
 class LinkedList {
-  private head: Node
+  private head: Node | null
 
   constructor(head: Node) {
     this.head = head
@@ -30,17 +30,22 @@ class LinkedList {
   }
 
   insertAtEnd(node: Node) {
-    const { lastNode } = this.getLastNode()
+    if (!this.head) return this.insertAtBeginning(node)
+    let lastNode = this.head
+
+    while (lastNode.next) {
+      lastNode = lastNode.next
+    }
     lastNode.next = node
   }
 
   insertAtMiddle(node: Node, position: number) {
-    if (position === 0) return this.insertAtBeginning(node)
+    if (position <= 0 || !this.head) return this.insertAtBeginning(node)
+
     let nodeBeforeNewNode = this.head
-    let nodeAfterNewNode: Node | null
 
     for (let i = 1; i < position; i++) {
-      const nextNode = nodeBeforeNewNode.next
+      const nextNode: Node | null = nodeBeforeNewNode.next
       if (nextNode) {
         nodeBeforeNewNode = nextNode
       } else {
@@ -48,56 +53,65 @@ class LinkedList {
       }
     }
 
+    let nodeAfterNewNode: Node | null
     nodeAfterNewNode = nodeBeforeNewNode.next
     nodeBeforeNewNode.next = node
     node.next = nodeAfterNewNode
   }
 
   deleteFromBeginning() {
-    this.head = this.head.next!
+    if (this.head) this.head = this.head.next
   }
 
   deleteFromEnd() {
-    let { lastNodeIndex } = this.getLastNode()
-    let nodeToRemoveNext = this.head
-    for (let i = 1; i < lastNodeIndex; i++) {
-      nodeToRemoveNext = nodeToRemoveNext.next!
+    if (this.head && !this.head.next) return (this.head = null)
+    let nodeBeforeLastNode = this.head
+
+    if (nodeBeforeLastNode) {
+      while (nodeBeforeLastNode.next && nodeBeforeLastNode.next.next) {
+        nodeBeforeLastNode = nodeBeforeLastNode.next
+      }
+
+      nodeBeforeLastNode.next = null
     }
-    nodeToRemoveNext.next = null
   }
 
   deleteFromMiddle(position: number) {
-    if (position === 0) return this.deleteFromBeginning()
-
+    if (position <= 0) return this.deleteFromBeginning()
     let nodeToRemoveNext = this.head
-    for (let i = 1; i < position; i++) {
-      const nextNode = nodeToRemoveNext.next
-      const nextTwoNodes = nodeToRemoveNext.next ? nodeToRemoveNext.next.next : null
-      if (nextNode && nextTwoNodes) {
-        nodeToRemoveNext = nextNode
-      } else {
-        break
+
+    if (nodeToRemoveNext) {
+      for (let i = 1; i < position; i++) {
+        const nextNode: Node | null = nodeToRemoveNext.next
+        if (nextNode && nextNode.next) {
+          nodeToRemoveNext = nextNode
+        } else {
+          break
+        }
       }
+      nodeToRemoveNext.next = nodeToRemoveNext.next ? nodeToRemoveNext.next.next : null
     }
-    nodeToRemoveNext.next = nodeToRemoveNext.next!.next
   }
 
   search(data: number | string) {
-    const { lastNodeIndex } = this.getLastNode()
     let currentNode = this.head
     let currentIndex = 0
 
-    for (let i = 0; i < lastNodeIndex; i++) {
+    while (currentNode) {
       if (currentNode.data === data) return currentIndex
-      currentNode = currentNode.next!
+      currentNode = currentNode.next
       currentIndex++
     }
     return -1
   }
 
   sort() {
-    const { lastNodeIndex } = this.getLastNode()
-    let i = 0
+    let currentNode = this.head
+    let lastNodeIndex = 0
+    while (currentNode && currentNode.next) {
+      currentNode = currentNode.next
+      lastNodeIndex++
+    }
     for (let i = 0; i < lastNodeIndex; i++) {
       for (let j = 0; j < lastNodeIndex - i; j++) {
         const leftNode = this.getNodeByIndex(j)!
@@ -109,8 +123,8 @@ class LinkedList {
             this.head = rightNode
             rightNode.next = leftNode
           } else {
-            const nodeBeforeLeftNode = this.getNodeByIndex(j - 1)
-            nodeBeforeLeftNode!.next = rightNode
+            const nodeBeforeLeftNode = this.getNodeByIndex(j - 1)!
+            nodeBeforeLeftNode.next = rightNode
             const nodeAfterRightNode = rightNode.next
 
             rightNode.next = leftNode
@@ -125,7 +139,7 @@ class LinkedList {
     let currentNode: Node | null = this.head
     let i = 0
     while (i < index) {
-      if (currentNode.next) {
+      if (currentNode && currentNode.next) {
         currentNode = currentNode.next
         i++
       } else {
@@ -133,16 +147,6 @@ class LinkedList {
       }
     }
     return currentNode
-  }
-
-  private getLastNode() {
-    let currentNode = this.head
-    let lastNodeIndex = 0
-    while (currentNode.next) {
-      currentNode = currentNode.next
-      lastNodeIndex++
-    }
-    return { lastNode: currentNode, lastNodeIndex }
   }
 }
 
